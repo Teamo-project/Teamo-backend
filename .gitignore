@@ -7,7 +7,7 @@ build/
 
 ## Private File ##
 application-oauth.yml
-
+application-datasource.yml
 
 ### STS ###
 .apt_generated
