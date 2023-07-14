@@ -12,7 +12,7 @@ env:
   S3_BUCKET_NAME: teamo-backend-github-action-s3-bucket
   CODE_DEPLOY_APPLICATION_NAME: my-codedeploy-app
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: my-codedeploy-deployment-group
-
+  
 permissions:
   contents: read
 
@@ -27,13 +27,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    # (2) JDK 11 세팅
+    # (2) JDK 17 세팅
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
         java-version: '17'
-
+        
+    # +) datasource.yml 생성 #######
+    - uses: actions/checkout@v3
+    - run: touch ./src/main/resources/application-datasource.yml
+    - run: echo "${{secrets.APPLICATION_DATASOURCE}}" > ./src/main/resources/application-datasource.yml
+    - run: cat ./src/main/resources/application-datasource.yml
+    ################################
+    
     # (3) Gradle build (Test 제외)
     - name: Build with Gradle
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
