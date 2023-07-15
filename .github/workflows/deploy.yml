@@ -34,12 +34,19 @@ jobs:
         distribution: 'adopt'
         java-version: '17'
         
-    # +) datasource.yml 생성 #######
+    # +) datasource.yml 생성 ######################
     - uses: actions/checkout@v3
     - run: touch ./src/main/resources/application-datasource.yml
     - run: echo "${{secrets.APPLICATION_DATASOURCE}}" > ./src/main/resources/application-datasource.yml
     - run: cat ./src/main/resources/application-datasource.yml
-    ################################
+    ################################################
+    
+    # +) Grant execute permission to scripts #######
+    - name: Grant execute permission to scripts
+      run: |
+        chmod +x scripts/stop.sh
+        chmod +x scripts/start.sh    
+    ################################################
     
     # (3) Gradle build (Test 제외)
     - name: Build with Gradle
