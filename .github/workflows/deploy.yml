@@ -64,11 +64,6 @@ jobs:
           --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
           --source .
 
-    # +) start.sh, stop.sh 권한 허용
-    - name : Set execute permission for scripts
-    - run : chmod +x scripts/start.sh
-    - run : chmod +x scripts/stop.sh
-    
     # (6) S3 버킷에 있는 파일을 대상으로 CodeDeploy 실행
     - name: Deploy to AWS EC2 from S3
       run: |
