@@ -1,4 +1,4 @@
-package com.teamo.teamo.response;
+package com.teamo.teamo.security.token;
 
 import lombok.Builder;
 import lombok.Getter;

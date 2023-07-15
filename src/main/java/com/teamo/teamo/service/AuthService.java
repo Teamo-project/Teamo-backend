@@ -2,7 +2,7 @@ package com.teamo.teamo.service;
 
 import com.teamo.teamo.domain.Member;
 import com.teamo.teamo.repository.MemberRepository;
-import com.teamo.teamo.response.JwtDto;
+import com.teamo.teamo.security.token.JwtDto;
 import com.teamo.teamo.security.JwtProvider;
 import com.teamo.teamo.type.AuthType;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.teamo.teamo.controller;
 
-import com.teamo.teamo.response.JwtDto;
+import com.teamo.teamo.security.token.JwtDto;
 import com.teamo.teamo.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

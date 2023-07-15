@@ -3,9 +3,10 @@ package com.teamo.teamo.domain;
 import com.teamo.teamo.type.AuthType;
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
+@Getter
 @Table(name = "MEMBER_TABLE")
 @NoArgsConstructor
 @Entity
