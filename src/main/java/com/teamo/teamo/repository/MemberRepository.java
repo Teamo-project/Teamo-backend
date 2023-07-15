@@ -1,6 +1,6 @@
 package com.teamo.teamo.repository;
 
-import com.teamo.teamo.domain.Member;
+import com.teamo.teamo.model.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

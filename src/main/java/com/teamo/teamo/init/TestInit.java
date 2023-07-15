@@ -1,6 +1,6 @@
 package com.teamo.teamo.init;
 
-import com.teamo.teamo.domain.Member;
+import com.teamo.teamo.model.domain.Member;
 import com.teamo.teamo.repository.MemberRepository;
 import com.teamo.teamo.type.AuthType;
 import jakarta.annotation.PostConstruct;

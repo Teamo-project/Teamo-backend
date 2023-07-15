@@ -1,6 +1,6 @@
 package com.teamo.teamo.security;
 
-import com.teamo.teamo.domain.Member;
+import com.teamo.teamo.model.domain.Member;
 import com.teamo.teamo.repository.MemberRepository;
 import com.teamo.teamo.security.token.JwtDto;
 import com.teamo.teamo.type.AuthType;
@@ -46,16 +46,16 @@ public class JwtProvider {
         key = Keys.hmacShaKeyFor(encodedKey.getBytes());
     }
 
-    public JwtDto generateJwtDto(OAuth2User oAuth2User) {
+    public JwtDto generateJwtDto(String email) {
         Date now = new Date();
         Date accessTokenExpiresIn = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
         Date refreshTokenExpiresIn = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME);
 
-        Member member = memberRepository.findByEmail((String) oAuth2User.getAttribute("email"))
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("해당 email의 유저가 존재하지 않습니다"));
 
         String accessToken = generateAccessToken(member.getEmail(), member.getRole(), accessTokenExpiresIn);
-        String refreshToken = generateRefreshToken(member.getEmail(), refreshTokenExpiresIn);
+        String refreshToken = generateRefreshToken(member.getEmail(), member.getRole(), refreshTokenExpiresIn);
 
         return JwtDto.builder()
                 .grantType(AuthConst.BEARER)
@@ -75,9 +75,10 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(String email, Date refreshExpireDate) {
+    public String generateRefreshToken(String email, AuthType role, Date refreshExpireDate) {
         return Jwts.builder()
                 .setSubject(email)
+                .claim(AUTHORITIES_KEY, role)
                 .setExpiration(refreshExpireDate)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
@@ -113,8 +114,8 @@ public class JwtProvider {
         return true;
     }
 
-    public Authentication findAuthentication(String accessToken) {
-        Claims claims = parseClaims(accessToken);
+    public Authentication findAuthentication(String token) {
+        Claims claims = parseClaims(token);
 
         List<SimpleGrantedAuthority> authorities = List.of(claims.get(AUTHORITIES_KEY))
                 .stream().map(role -> new SimpleGrantedAuthority((String) role))
@@ -125,5 +126,21 @@ public class JwtProvider {
 
     private Claims parseClaims(String accessToken) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+    }
+
+    public void validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken);
+        } catch (SecurityException e) {
+            log.error("올바르지 못한 토큰입니다");
+        } catch (MalformedJwtException e) {
+            log.error("올바르지 못한 토큰입니다");
+        } catch (ExpiredJwtException e) {
+            log.error("만료된 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.error("지원되지 않는 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.error("잘못된 토큰입니다.");
+        }
     }
 }

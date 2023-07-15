@@ -1,4 +1,4 @@
-package com.teamo.teamo.domain;
+package com.teamo.teamo.model.domain;
 
 import com.teamo.teamo.type.AuthType;
 import jakarta.persistence.*;

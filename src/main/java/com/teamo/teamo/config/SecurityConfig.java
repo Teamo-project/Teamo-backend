@@ -29,10 +29,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
                 .authorizeHttpRequests(autho -> {
                     autho
+                            .requestMatchers("/auth/reissue").permitAll()
                             .requestMatchers("/**/admin").hasRole(AuthType.ROLE_ADMIN.getKey())
                             .requestMatchers("/**/guest").hasAnyRole(AuthType.ROLE_USER.getKey(), AuthType.ROLE_ADMIN.getKey())
                             .anyRequest().permitAll();
-
                 })
                 .oauth2Login(oauth -> {
                     oauth.userInfoEndpoint(end -> end.userService(customUserDetailService))
