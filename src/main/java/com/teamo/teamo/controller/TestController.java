@@ -1,13 +1,13 @@
 package com.teamo.teamo.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import com.teamo.teamo.api.DemoApi;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TestController {
+public class TestController implements DemoApi {
 
-    @GetMapping("/test")
+    @Override
     public String test() {
-        return "test성공";
+        return "test 성공";
     }
 }
