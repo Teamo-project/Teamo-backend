@@ -1,8 +1,8 @@
 package com.teamo.teamo.config;
 
 import com.teamo.teamo.filter.JwtFilter;
-import com.teamo.teamo.security.CustomUserDetailService;
-import com.teamo.teamo.security.JwtProvider;
+import com.teamo.teamo.security.CustomOAuth2UserDetailService;
+import com.teamo.teamo.service.JwtService;
 import com.teamo.teamo.type.AuthType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailService customUserDetailService;
-    private final JwtProvider jwtProvider;
+    private final CustomOAuth2UserDetailService customOAuth2UserDetailService;
+    private final JwtService jwtService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,17 +29,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
                 .authorizeHttpRequests(autho -> {
                     autho
-                            .requestMatchers("/auth/reissue").permitAll()
+                            .requestMatchers("/auth/reissue", "/swagger-ui/**", "/swagger-resources/**").permitAll()
                             .requestMatchers("/**/admin").hasRole(AuthType.ROLE_ADMIN.getKey())
                             .requestMatchers("/**/guest").hasAnyRole(AuthType.ROLE_USER.getKey(), AuthType.ROLE_ADMIN.getKey())
-                            .anyRequest().permitAll();
+                            .anyRequest().permitAll(); // 개발 단계라서
                 })
                 .oauth2Login(oauth -> {
-                    oauth.userInfoEndpoint(end -> end.userService(customUserDetailService))
+                    oauth.userInfoEndpoint(end -> end.userService(customOAuth2UserDetailService))
                             .defaultSuccessUrl("/auth/login")
                             .failureUrl("/fail");
                 })
-                .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

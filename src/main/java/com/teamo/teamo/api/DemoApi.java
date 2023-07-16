@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "demo", description = "demo api")
 @RestController
-@RequestMapping("/api/demo")
+@RequestMapping("/test")
 public interface DemoApi {
 
     @Operation(summary = "테스트", description = "테스트 메서드입니다")
-    @GetMapping("/test")
+    @GetMapping
     String test();
 }

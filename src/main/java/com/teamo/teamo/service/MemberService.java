@@ -4,7 +4,6 @@ import com.teamo.teamo.model.domain.Member;
 import com.teamo.teamo.model.request.ReissueRequest;
 import com.teamo.teamo.repository.MemberRepository;
 import com.teamo.teamo.security.token.JwtDto;
-import com.teamo.teamo.security.JwtProvider;
 import com.teamo.teamo.type.AuthType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -14,10 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
-public class AuthService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
 
     @Transactional
     public JwtDto login(OAuth2User oAuth2User) {
@@ -29,15 +28,15 @@ public class AuthService {
                     .build());
         }
         // 2. 회원은 token을 생성
-        return jwtProvider.generateJwtDto(oAuth2User.getAttribute("email"));
+        return jwtService.generateJwtDto(oAuth2User.getAttribute("email"));
     }
 
     @Transactional(readOnly = true)
     public JwtDto reissue(ReissueRequest request) {
-        jwtProvider.validateRefreshToken(request.getRefreshToken());
-        Authentication authentication = jwtProvider.findAuthentication(request.getRefreshToken());
+        jwtService.validateRefreshToken(request.getRefreshToken());
+        Authentication authentication = jwtService.findAuthentication(request.getRefreshToken());
 
-        return jwtProvider.generateJwtDto(authentication.getName());
+        return jwtService.generateJwtDto(authentication.getName());
     }
 
 }

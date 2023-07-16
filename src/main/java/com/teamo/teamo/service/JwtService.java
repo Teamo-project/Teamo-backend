@@ -1,7 +1,10 @@
-package com.teamo.teamo.security;
+package com.teamo.teamo.service;
 
 import com.teamo.teamo.model.domain.Member;
 import com.teamo.teamo.repository.MemberRepository;
+import com.teamo.teamo.security.AuthConst;
+import com.teamo.teamo.security.CustomUserDetailsService;
+import com.teamo.teamo.security.dto.MemberLoginDto;
 import com.teamo.teamo.security.token.JwtDto;
 import com.teamo.teamo.type.AuthType;
 import io.jsonwebtoken.*;
@@ -14,9 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
@@ -26,8 +28,8 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
-public class JwtProvider {
+@Service
+public class JwtService {
 
     private final String AUTHORITIES_KEY = "auth";
     private final Integer ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
@@ -38,6 +40,7 @@ public class JwtProvider {
     private Key key;
 
     private final MemberRepository memberRepository;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @PostConstruct
     private void initialize() {
@@ -46,11 +49,11 @@ public class JwtProvider {
         key = Keys.hmacShaKeyFor(encodedKey.getBytes());
     }
 
+    @Transactional(readOnly = true)
     public JwtDto generateJwtDto(String email) {
         Date now = new Date();
         Date accessTokenExpiresIn = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME);
         Date refreshTokenExpiresIn = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME);
-
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("해당 email의 유저가 존재하지 않습니다"));
 
@@ -111,17 +114,15 @@ public class JwtProvider {
             log.error("잘못된 토큰입니다.");
         }
 
-        return true;
+        return false;
     }
 
     public Authentication findAuthentication(String token) {
         Claims claims = parseClaims(token);
 
-        List<SimpleGrantedAuthority> authorities = List.of(claims.get(AUTHORITIES_KEY))
-                .stream().map(role -> new SimpleGrantedAuthority((String) role))
-                .toList();
-        User user = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(user, "", authorities);
+        MemberLoginDto memberLoginDto = customUserDetailsService.loadUserByUsername(claims.getSubject());
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority((String)claims.get(AUTHORITIES_KEY)));
+        return new UsernamePasswordAuthenticationToken(memberLoginDto, "", authorities);
     }
 
     private Claims parseClaims(String accessToken) {
