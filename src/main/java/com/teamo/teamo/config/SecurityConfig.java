@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
                 .authorizeHttpRequests(autho -> {
                     autho
-                            .requestMatchers("/auth/reissue", "/swagger-ui/**", "/swagger-resources/**").permitAll()
+                            .requestMatchers("/auth/reissue", "/swagger-ui/**", "/swagger-resources/**","/oauth2/authorization/google").permitAll()
                             .requestMatchers("/**/admin").hasRole(AuthType.ROLE_ADMIN.getKey())
                             .requestMatchers("/**/guest").hasAnyRole(AuthType.ROLE_USER.getKey(), AuthType.ROLE_ADMIN.getKey())
                             .anyRequest().permitAll(); // 개발 단계라서
